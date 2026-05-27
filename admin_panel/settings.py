@@ -65,6 +65,8 @@ INSTALLED_APPS = [
 ]
 AUTH_USER_MODEL = "account.User"
 
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
