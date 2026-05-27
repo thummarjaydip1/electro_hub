@@ -7,6 +7,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .serializers import ContactSerializer, FeedbackSerializer
 import requests
+from django.conf import settings
 
 
 # CONTACT table with API
@@ -15,7 +16,7 @@ class ContactViewSet(viewsets.ModelViewSet):
     serializer_class = ContactSerializer
 
 
-CONTACT_API = "http://127.0.0.1:8000/api/api/contact-api/"
+CONTACT_API = settings.BASE_API_URL + "/api/api/contact-api/"
 
 
 @login_required(login_url="auth_login")
@@ -89,7 +90,7 @@ def display_data(request):
         data = response.json()
 
         # feedback table data display api throw
-        FEEDBACK_DISPLAY_DATA = "http://127.0.0.1:8000/api/api/feedback-display/"
+        FEEDBACK_DISPLAY_DATA = settings.BASE_API_URL + "api/api/feedback-display/"
         responsee = requests.get(FEEDBACK_DISPLAY_DATA)
         dataa = responsee.json()
         return render(request, "api/con_fed_disp.html", {"data": data, "dataa": dataa})
@@ -144,7 +145,7 @@ def feedback_delete(request, id):
 @login_required(login_url="auth_login")
 def feedback_add_data(request):
     try:
-        FEEDBACK_ADD_API = "http://127.0.0.1:8000/api/api/feedback-add/"
+        FEEDBACK_ADD_API = settings.BASE_API_URL + "/api/api/feedback-add/"
         if request.method == "POST":
             data = {
                 "name": request.POST.get("name"),
@@ -164,8 +165,8 @@ def feedback_add_data(request):
 @login_required(login_url="auth_login")
 def feedback_update_data(request, id):
     try:
-        FEEDBACK_UPDATE_API = "http://127.0.0.1:8000/api/api/feedback-update/"
-        FEEDBACK_DISPLAY_ID = "http://127.0.0.1:8000/api/api/feedback-display-id/"
+        FEEDBACK_UPDATE_API = settings.BASE_API_URL + "/api/api/feedback-update/"
+        FEEDBACK_DISPLAY_ID = settings.BASE_API_URL + "/api/api/feedback-display-id/"
         response = requests.get(f"{FEEDBACK_DISPLAY_ID}{id}/")
         data = response.json()
         if request.user.username == data["name"]:
@@ -189,8 +190,8 @@ def feedback_update_data(request, id):
 
 def feedback_delete_data(request, id):
     try:
-        FEEDBACK_DELETE = "http://127.0.0.1:8000/api/api/feedback-delete/"
-        FEEDBACK_DISPLAY_ID = "http://127.0.0.1:8000/api/api/feedback-display-id/"
+        FEEDBACK_DELETE = settings.BASE_API_URL + "/api/api/feedback-delete/"
+        FEEDBACK_DISPLAY_ID = settings.BASE_API_URL + "/api/api/feedback-display-id/"
         response = requests.get(f"{FEEDBACK_DISPLAY_ID}{id}/")
         data = response.json()
         if request.user.username == data["name"]:

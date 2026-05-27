@@ -14,6 +14,20 @@ from pathlib import Path
 
 from decouple import config
 
+import os
+
+import cloudinary  # image upload to cloud
+import cloudinary.api  # image upload to cloud
+import cloudinary.uploader  # image upload to cloud
+
+BASE_API_URL = os.getenv("BASE_API_URL", "http://127.0.0.1:8000")
+# image upload to cloud
+cloudinary.config(
+    cloud_name=config("CLOUDINARY_CLOUD_NAME"),
+    api_key=config("CLOUDINARY_API_KEY"),
+    api_secret=config("CLOUDINARY_API_SECRET"),
+)
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -46,8 +60,11 @@ INSTALLED_APPS = [
     "product",
     "order",
     "apiapp",
+    "cloudinary",  # image cloud ma srote karava
+    "cloudinary_storage",  # image cloud ma srote karava
 ]
 AUTH_USER_MODEL = "account.User"
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -135,7 +152,7 @@ STATICFILES_DIRS = [
     BASE_DIR / "management/static",
 ]
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
