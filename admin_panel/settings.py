@@ -20,14 +20,6 @@ import cloudinary  # image upload to cloud
 import cloudinary.api  # image upload to cloud
 import cloudinary.uploader  # image upload to cloud
 
-BASE_API_URL = os.getenv("BASE_API_URL", "http://127.0.0.1:8000")
-# image upload to cloud
-cloudinary.config(
-    cloud_name=config("CLOUDINARY_CLOUD_NAME"),
-    api_key=config("CLOUDINARY_API_KEY"),
-    api_secret=config("CLOUDINARY_API_SECRET"),
-)
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -40,6 +32,15 @@ SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DEBUG", cast=bool)
+
+
+BASE_API_URL = os.getenv("BASE_API_URL", "http://127.0.0.1:8000")
+# image upload to cloud
+cloudinary.config(
+    cloud_name=config("CLOUDINARY_CLOUD_NAME"),
+    api_key=config("CLOUDINARY_API_KEY"),
+    api_secret=config("CLOUDINARY_API_SECRET"),
+)
 
 ALLOWED_HOSTS = ["*"]  # live server ma run karva mate
 
