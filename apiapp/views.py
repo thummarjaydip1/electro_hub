@@ -90,7 +90,7 @@ def display_data(request):
         data = response.json()
 
         # feedback table data display api throw
-        FEEDBACK_DISPLAY_DATA = settings.BASE_API_URL + "api/api/feedback-display/"
+        FEEDBACK_DISPLAY_DATA = settings.BASE_API_URL + "/api/api/feedback-display/"
         responsee = requests.get(FEEDBACK_DISPLAY_DATA)
         dataa = responsee.json()
         return render(request, "api/con_fed_disp.html", {"data": data, "dataa": dataa})
