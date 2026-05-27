@@ -34,7 +34,6 @@ SECRET_KEY = config("SECRET_KEY")
 DEBUG = config("DEBUG", cast=bool)
 
 
-BASE_API_URL = os.getenv("BASE_API_URL", "http://127.0.0.1:8000")
 # image upload to cloud
 cloudinary.config(
     cloud_name=config("CLOUDINARY_CLOUD_NAME"),

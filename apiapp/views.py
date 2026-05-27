@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import *
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -6,201 +6,189 @@ from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .serializers import ContactSerializer, FeedbackSerializer
-import requests
-from django.conf import settings
 
 
-# CONTACT table with API
-class ContactViewSet(viewsets.ModelViewSet):
-    queryset = Contact.objects.all()
-    serializer_class = ContactSerializer
-
-
-CONTACT_API = settings.BASE_API_URL + "/api/api/contact-api/"
-
-
+# CONTACT ADD
 @login_required(login_url="auth_login")
 def contact_add_data(request):
     try:
         if request.method == "POST":
-            data = {
-                "name": request.POST.get("name"),
-                "age": request.POST.get("age"),
-                "email": request.POST.get("email"),
-                "mobile": request.POST.get("mobile"),
-                "address": request.POST.get("address"),
-            }
-            requests.post(CONTACT_API, json=data)
+
+            Contact.objects.create(
+                name=request.POST.get("name"),
+                age=request.POST.get("age"),
+                email=request.POST.get("email"),
+                mobile=request.POST.get("mobile"),
+                address=request.POST.get("address"),
+            )
+
             messages.success(request, "Contact Send Successfully")
             return redirect("display_data")
+
         return render(request, "api/contact.html")
-    except:
+
+    except Exception as e:
+        print(e)
         messages.warning(request, "Somthing wrong")
         return redirect("error_page")
 
 
+# CONTACT UPDATE
 @login_required(login_url="auth_login")
 def contact_update_data(request, id):
     try:
-        response = requests.get(f"{CONTACT_API}{id}/")
-        data = response.json()
-        if request.user.username == data["name"]:
+        data = get_object_or_404(Contact, id=id)
+
+        if request.user.username == data.name:
+
             if request.method == "POST":
-                update_data = {
-                    "name": request.POST.get("name"),
-                    "age": request.POST.get("age"),
-                    "email": request.POST.get("email"),
-                    "mobile": request.POST.get("mobile"),
-                    "address": request.POST.get("address"),
-                }
-                requests.put(f"{CONTACT_API}{id}/", data=update_data)
+
+                data.name = request.POST.get("name")
+                data.age = request.POST.get("age")
+                data.email = request.POST.get("email")
+                data.mobile = request.POST.get("mobile")
+                data.address = request.POST.get("address")
+
+                data.save()
+
                 messages.success(request, "Contact Update Successfully")
                 return redirect("display_data")
+
         else:
             messages.warning(request, "You cant update only your contact")
             return redirect("error_page")
+
         return render(request, "api/contact_update.html", {"data": data})
-    except:
+
+    except Exception as e:
+        print(e)
         messages.warning(request, "Somthing wrong")
         return redirect("error_page")
 
 
+# CONTACT DELETE
 @login_required(login_url="auth_login")
 def contact_delete_data(request, id):
     try:
-        response = requests.get(f"{CONTACT_API}{id}/")
-        data = response.json()
-        if request.user.username == data["name"]:
-            requests.delete(f"{CONTACT_API}{id}/")
+        data = get_object_or_404(Contact, id=id)
+
+        if request.user.username == data.name:
+
+            data.delete()
+
             messages.warning(request, "Contact Delete Successfully")
             return redirect("display_data")
+
         else:
             messages.warning(request, "You cant delete only your contact")
             return redirect("error_page")
-    except:
+
+    except Exception as e:
+        print(e)
         messages.warning(request, "Somthing wrong")
         return redirect("error_page")
 
 
+# DISPLAY DATA
 @login_required(login_url="auth_login")
 def display_data(request):
     try:
-        # contact table data display api throw
-        response = requests.get(CONTACT_API)
-        data = response.json()
 
-        # feedback table data display api throw
-        FEEDBACK_DISPLAY_DATA = settings.BASE_API_URL + "/api/api/feedback-display/"
-        responsee = requests.get(FEEDBACK_DISPLAY_DATA)
-        dataa = responsee.json()
-        return render(request, "api/con_fed_disp.html", {"data": data, "dataa": dataa})
-    except:
+        data = Contact.objects.all()
+        dataa = Feedback.objects.all()
+
+        return render(
+            request,
+            "api/con_fed_disp.html",
+            {
+                "data": data,
+                "dataa": dataa,
+            },
+        )
+
+    except Exception as e:
+        print(e)
         messages.warning(request, "Somthing wrong")
         return redirect("error_page")
 
 
-# FEEDBACK table with API
-@api_view(["POST"])
-def feedback_add(request):
-    serializer = FeedbackSerializer(data=request.data)
-
-    if serializer.is_valid():
-        serializer.save()
-        return Response({"msg": "Added Successfully"})
-    
-    return Response(serializer.errors)
-
-
-@api_view(["GET"])
-def feedback_display(request):
-    data = Feedback.objects.all()
-    serializer = FeedbackSerializer(data, many=True)
-    return Response(serializer.data)
-
-
-@api_view(["GET"])
-def feedback_display_id(request, id):
-    data = Feedback.objects.get(id=id)
-    serializer = FeedbackSerializer(data)
-    return Response(serializer.data)
-
-
-@api_view(["PUT"])
-def feedback_update(request, id):
-    feedback = Feedback.objects.get(id=id)
-    serializer = FeedbackSerializer(feedback, data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response({"msg": "Record Updated Successfully"})
-    return Response(serializer.errors)
-
-
-@api_view(["DELETE"])
-def feedback_delete(request, id):
-    data = Feedback.objects.get(id=id)
-    data.delete()
-    return Response({"msg": "Record Deleted Successfully"})
-
-
+# FEEDBACK ADD
 @login_required(login_url="auth_login")
 def feedback_add_data(request):
     try:
-        FEEDBACK_ADD_API = settings.BASE_API_URL + "/api/api/feedback-add/"
+
         if request.method == "POST":
-            data = {
-                "name": request.POST.get("name"),
-                "email": request.POST.get("email"),
-                "rating": request.POST.get("rating"),
-                "message": request.POST.get("message"),
-            }
-            requests.post(FEEDBACK_ADD_API, data=data)
+
+            Feedback.objects.create(
+                name=request.POST.get("name"),
+                email=request.POST.get("email"),
+                rating=request.POST.get("rating"),
+                message=request.POST.get("message"),
+            )
+
             messages.success(request, "Feedback Send Successfully")
             return redirect("display_data")
+
         return render(request, "api/feedback.html")
-    except:
+
+    except Exception as e:
+        print(e)
         messages.warning(request, "Somthing wrong")
         return redirect("error_page")
 
 
+# FEEDBACK UPDATE
 @login_required(login_url="auth_login")
 def feedback_update_data(request, id):
     try:
-        FEEDBACK_UPDATE_API = settings.BASE_API_URL + "/api/api/feedback-update/"
-        FEEDBACK_DISPLAY_ID = settings.BASE_API_URL + "/api/api/feedback-display-id/"
-        response = requests.get(f"{FEEDBACK_DISPLAY_ID}{id}/")
-        data = response.json()
-        if request.user.username == data["name"]:
+
+        data = get_object_or_404(Feedback, id=id)
+
+        if request.user.username == data.name:
+
             if request.method == "POST":
-                update_data = {
-                    "name": request.POST.get("name"),
-                    "email": request.POST.get("email"),
-                    "rating": request.POST.get("rating"),
-                    "message": request.POST.get("message"),
-                }
-                requests.put(f"{FEEDBACK_UPDATE_API}{id}/", json=update_data)
+
+                data.name = request.POST.get("name")
+                data.email = request.POST.get("email")
+                data.rating = request.POST.get("rating")
+                data.message = request.POST.get("message")
+
+                data.save()
+
                 messages.success(request, "Feedbcak Update Successfully")
                 return redirect("display_data")
+
         else:
             messages.warning(request, "You cant update only your feedback")
             return redirect("error_page")
+
         return render(request, "api/feedback_update.html", {"data": data})
-    except:
+
+    except Exception as e:
+        print(e)
         messages.warning(request, "Somthing wrong")
+        return redirect("error_page")
 
 
+# FEEDBACK DELETE
+@login_required(login_url="auth_login")
 def feedback_delete_data(request, id):
     try:
-        FEEDBACK_DELETE = settings.BASE_API_URL + "/api/api/feedback-delete/"
-        FEEDBACK_DISPLAY_ID = settings.BASE_API_URL + "/api/api/feedback-display-id/"
-        response = requests.get(f"{FEEDBACK_DISPLAY_ID}{id}/")
-        data = response.json()
-        if request.user.username == data["name"]:
-            requests.delete(f"{FEEDBACK_DELETE}{id}/")
+
+        data = get_object_or_404(Feedback, id=id)
+
+        if request.user.username == data.name:
+
+            data.delete()
+
             messages.warning(request, "Record Deleted Successfully")
             return redirect("display_data")
+
         else:
             messages.warning(request, "You cant delete only your feedback")
             return redirect("error_page")
-    except:
+
+    except Exception as e:
+        print(e)
         messages.warning(request, "Somthing wrong")
         return redirect("error_page")
