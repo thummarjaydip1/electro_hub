@@ -8,7 +8,7 @@
 
   .profile-container {
     margin-left: 500px;
-    margin-top: -450px;
+    margin-top: 0px;
   }
 
   .profile-card {
@@ -65,7 +65,6 @@
 <div class="profile-container">
   <div class="profile-card">
     <div class="profile-heading">
-
       <img
         src="{% static 'assets/img/avatars/pro.avif' %}"
         alt="avatar"
@@ -93,22 +92,22 @@
     <table class="profile-table">
       <tr>
         <td class="label">Name</td>
-        <td class="value">{{ profile.username }}</td>
+        <td class="value">{{ profile.user.username }}</td>
       </tr>
 
       <tr>
         <td class="label">Email</td>
-        <td class="value">{{ profile.email }}</td>
+        <td class="value">{{ profile.user.email }}</td>
       </tr>
 
       <tr>
         <td class="label">Contact</td>
-        <td class="value">{{ profile.contact }}</td>
+        <td class="value">{{ profile.user.contact }}</td>
       </tr>
 
       <tr>
         <td class="label">Role</td>
-        <td class="value">{{ profile.role }}</td>
+        <td class="value">{{ profile.user.role }}</td>
       </tr>
 
       <tr>
