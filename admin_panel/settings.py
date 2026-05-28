@@ -20,7 +20,7 @@ import cloudinary  # image upload to cloud
 import cloudinary.api  # image upload to cloud
 import cloudinary.uploader  # image upload to cloud
 
-import dj_database_url   # database convert progresql
+import dj_database_url  # database convert progresql
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -116,10 +116,7 @@ INTERNAL_IPS = [
 
 DATABASES = {
     "default": dj_database_url.parse(
-        config(
-            "DATABASE_URL",
-            default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
-        )
+        config("DATABASE_URL", default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}")
     )
 }
 
